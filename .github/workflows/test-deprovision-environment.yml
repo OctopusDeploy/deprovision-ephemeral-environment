@@ -1,4 +1,42 @@
-name: Test Deprovision Ephemeral Environment
+name: Test Deprovision Environment
 
 on:
   workflow_dispatch:
+    inputs:
+      server:
+        type: string
+        description: The url of the Octopus Instance. Will default to repository variable TEST_INSTANCE_URL if not supplied.
+      service_account_id:
+        type: string
+        description: The id of the service account to login for. Will default to repository variable TEST_INSTANCE_SERVICE_ACCOUNT_ID if not supplied.
+      space:
+        description: 'The name of the space containing the ephemeral environment. Will default to repository variable TEST_SPACE_NAME if not supplied.'
+      name:
+        description: 'The name of the ephemeral environment to deprovision.'
+        required: true
+
+jobs:
+  deprovision-environment:
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read # This is required for actions/checkout
+    runs-on: ubuntu-latest
+    name: Test Ephemeral Environment Deprovisioning
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to Octopus Deploy
+        uses: OctopusDeploy/login@v1
+        with: 
+          server: ${{ inputs.server || vars.TEST_INSTANCE_URL }}
+          service_account_id: ${{ inputs.service_account_id || vars.TEST_INSTANCE_SERVICE_ACCOUNT_ID }}
+
+      - name: Deprovision Ephemeral Environment
+        id: self_test
+        uses: ./
+        with:
+          name: ${{ inputs.name }}
+          space: ${{ inputs.space || vars.TEST_SPACE_NAME}}
+
+      - name: Show test action output
+        run: echo "${{ steps.self_test.outputs.deprovisioning_runbook_runs }}"
