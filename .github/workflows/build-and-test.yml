@@ -1,0 +1,62 @@
+name: Build and Test
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch: 
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build and test
+    permissions:
+      contents: read
+      actions: write
+      checks: write
+      statuses: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup node 24
+        uses: actions/setup-node@v3
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test
+
+      - name: Create test report
+        uses: phoenix-actions/test-reporting@v12
+        if: success() || failure() # run this step even if previous step failed
+        with:
+          name: Tests # Name of the check run which will be created
+          path: test-results/jest-*.xml # Path to test results
+          reporter: jest-junit # Format of test results
+          output-to: step-summary
+
+      - name: Compare the expected and actual dist/ directories
+        run: |
+          if [ "$(git diff --ignore-space-at-eol dist/ | wc -l)" -gt "0" ]; then
+            echo "Detected uncommitted changes after build.  See status below:"
+            git diff
+            exit 1
+          fi
+        id: diff
+
+      # If index.js was different from expected, upload the expected version as an artifact
+      - name: Upload dist as artifact if differences detected
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() && steps.diff.conclusion == 'failure' }}
+        with:
+          name: dist
+          path: dist/

@@ -1,0 +1,37 @@
+{
+  "name": "deprovision-ephemeral-environment",
+  "version": "1.0.0",
+  "description": "GitHub Action to deprovision an ephemeral environment in Octopus Deploy",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "github-action",
+    "octopus-deploy",
+    "ephemeral-environment"
+  ],
+  "author": "Octopus Deploy",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/node": "^24.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "eslint": "^8.0.0",
+    "jest": "^29.5.0",
+    "jest-junit": "^16.0.0",
+    "prettier": "^3.0.0",
+    "rimraf": "^5.0.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/github": "^6.0.0"
+  }
+}
