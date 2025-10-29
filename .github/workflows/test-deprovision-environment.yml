@@ -3,6 +3,9 @@ name: Test Deprovision Environment
 on:
   workflow_dispatch:
     inputs:
+      name:
+        description: 'The name of the ephemeral environment to deprovision.'
+        required: true
       server:
         type: string
         description: The url of the Octopus Instance. Will default to repository variable TEST_INSTANCE_URL if not supplied.
@@ -11,9 +14,6 @@ on:
         description: The id of the service account to login for. Will default to repository variable TEST_INSTANCE_SERVICE_ACCOUNT_ID if not supplied.
       space:
         description: 'The name of the space containing the ephemeral environment. Will default to repository variable TEST_SPACE_NAME if not supplied.'
-      name:
-        description: 'The name of the ephemeral environment to deprovision.'
-        required: true
 
 jobs:
   deprovision-environment:
