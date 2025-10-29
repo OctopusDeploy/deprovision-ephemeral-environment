@@ -37,7 +37,6 @@
   "dependencies": {
     "@actions/core": "^1.10.0",
     "@actions/github": "^6.0.0",
-    "@octopusdeploy/api-client": "^3.9.1",
-    "create-ephemeral-environment": "github:octopusdeploy/create-ephemeral-environment"
+    "@octopusdeploy/api-client": "^3.9.1"
   }
 }
