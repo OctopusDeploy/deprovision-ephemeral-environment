@@ -38,5 +38,5 @@ jobs:
           name: ${{ inputs.name }}
           space: ${{ inputs.space || vars.TEST_SPACE_NAME}}
 
-      - name: Show test action output
+      - name: Show Test Action Output
         run: echo "${{ steps.self_test.outputs.deprovisioning_runbook_runs }}"

@@ -18,7 +18,7 @@ inputs:
 
 outputs:
   deprovisioning_runbook_runs:
-    description: 'JSON string for an array of objects representing the deprovisioning runbook runs started by this action. Each object contains a `RunbookRunId` and `TaskId`.'
+    description: 'JSON string for an array of objects representing the deprovisioning runbook runs started by this action. Each object contains a `runbookRunId` and `serverTaskId`.'
 
 runs:
   using: 'node24'

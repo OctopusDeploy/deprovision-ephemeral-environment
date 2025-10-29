@@ -67488,14 +67488,14 @@ async function deprovisionEnvironment(context) {
     const deprovisioningRuns = await (0, api_wrapper_1.deprovisionEphemeralEnvironmentFromInputs)(client, parameters);
     context.setOutput('deprovisioning_runbook_runs', JSON.stringify(deprovisioningRuns.map(run => {
         return {
-            RunbookRunId: run.RunbookRunId,
-            TaskId: run.TaskId,
+            runbookRunId: run.RunbookRunId,
+            serverTaskId: run.TaskId,
         };
     })));
     if (deprovisioningRuns.length > 0) {
         client.info(`Rubook runs:`);
         deprovisioningRuns.forEach(run => {
-            client.info(`  RunbookRunId: ${run.RunbookRunId}, TaskId: ${run.TaskId}`);
+            client.info(`  runbookRunId: ${run.RunbookRunId}, serverTaskId: ${run.TaskId}`);
         });
         client.info(`Check the status of all deprovisioning runbook runs to confirm that deprovisioning has completed successfully.`);
     }

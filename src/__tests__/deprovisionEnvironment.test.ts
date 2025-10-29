@@ -15,6 +15,7 @@ test("Function to deprovision an ephemeral environment outputs deprovisioning ru
         { RunbookRunId: "Runbooks-12345", TaskId: "ServerTasks-67890" },
         { RunbookRunId: "Runbooks-54321", TaskId: "ServerTasks-09876" },
     ];
+    const expectedOutput = JSON.stringify(deprovisioningRuns.map(run => ({ runbookRunId: run.RunbookRunId, serverTaskId: run.TaskId })));
 
     const server = setupServer(
         http.post("https://my.octopus.app/api/:spaceId/environments/ephemeral/:environmentId/deprovision", () => {
@@ -46,5 +47,5 @@ test("Function to deprovision an ephemeral environment outputs deprovisioning ru
     server.listen();
 
     await deprovisionEnvironment(context);
-    expect(context.getOutput('deprovisioning_runbook_runs')).toEqual(JSON.stringify(deprovisioningRuns));
+    expect(context.getOutput('deprovisioning_runbook_runs')).toEqual(expectedOutput);
 });

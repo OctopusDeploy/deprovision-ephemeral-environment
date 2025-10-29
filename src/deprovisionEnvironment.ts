@@ -21,8 +21,8 @@ export async function deprovisionEnvironment(context: ActionContext): Promise<vo
         'deprovisioning_runbook_runs',
         JSON.stringify(deprovisioningRuns.map(run => {
             return {
-                RunbookRunId: run.RunbookRunId,
-                TaskId: run.TaskId,
+                runbookRunId: run.RunbookRunId,
+                serverTaskId: run.TaskId,
             }
         }))
     );
@@ -30,7 +30,7 @@ export async function deprovisionEnvironment(context: ActionContext): Promise<vo
     if (deprovisioningRuns.length > 0) {
         client.info(`Rubook runs:`);
         deprovisioningRuns.forEach(run => {
-            client.info(`  RunbookRunId: ${run.RunbookRunId}, TaskId: ${run.TaskId}`);
+            client.info(`  runbookRunId: ${run.RunbookRunId}, serverTaskId: ${run.TaskId}`);
         });
         client.info(`Check the status of all deprovisioning runbook runs to confirm that deprovisioning has completed successfully.`);
     } else {
