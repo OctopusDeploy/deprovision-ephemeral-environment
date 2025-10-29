@@ -28,11 +28,11 @@ export async function deprovisionEnvironment(context: ActionContext): Promise<vo
     );
 
     if (deprovisioningRuns.length > 0) {
-        client.info(`Rubook runs:`);
-        deprovisioningRuns.forEach(run => {
-            client.info(`  runbookRunId: ${run.RunbookRunId}, serverTaskId: ${run.TaskId}`);
-        });
-        client.info(`Check the status of all deprovisioning runbook runs to confirm that deprovisioning has completed successfully.`);
+        client.info([
+            `Rubook runs:`,
+            ...deprovisioningRuns.map(run => `  runbookRunId: ${run.RunbookRunId}, serverTaskId: ${run.TaskId}`),
+            `Check the status of all deprovisioning runbook runs to confirm that deprovisioning has completed successfully.`
+        ].join('\n'));
     } else {
         client.info('No deprovisioning runbook runs were started. Deprovisioning completed successfully.');
     }
