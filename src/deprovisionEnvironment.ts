@@ -33,8 +33,6 @@ export async function deprovisionEnvironment(context: ActionContext): Promise<vo
             ...deprovisioningRuns.map(run => `  runbookRunId: ${run.RunbookRunId}, serverTaskId: ${run.TaskId}`),
             `Check the status of all deprovisioning runbook runs to confirm that deprovisioning has completed successfully.`
         ].join('\n'));
-    } else {
-        client.info('No deprovisioning runbook runs were started. Deprovisioning completed successfully.');
     }
 
     context.writeStepSummary(`🐙 Octopus Deploy is deprovisioning ephemeral environment **${parameters.name}**.`);
