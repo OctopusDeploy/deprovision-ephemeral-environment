@@ -1,0 +1,25 @@
+name: 'Deprovision an ephemeral environment in Octopus Deploy'
+description: 'GitHub Action to deprovision an ephemeral environment across all projects in Octopus Deploy'
+author: 'Octopus Deploy'
+branding:
+  color: 'blue'
+  icon: 'package'
+
+inputs:
+  name:
+    description: 'The name of the ephemeral environment to deprovision.'
+    required: true
+  space:
+    description: 'The name of the space containing the ephemeral environment. The space name is required, but you may also use the OCTOPUS_SPACE environment variable.'
+  server:
+    description: 'The instance URL hosting Octopus Deploy (i.e. "https://octopus.example.com/"). The instance URL is required, but you may also use the OCTOPUS_URL environment variable.'
+  api_key:
+    description: 'The API key used to access Octopus Deploy. You may also use the OctopusDeploy Login Action, OCTOPUS_API_KEY environment variable or OCTOPUS_ACCESS_TOKEN environment variable. It is strongly recommended that this value be retrieved from a GitHub secret.'
+
+outputs:
+  deprovisioning_runbook_runs:
+    description: 'JSON string for an array of objects representing the deprovisioning runbook runs started by this action. Each object contains a `runbookRunId` and `serverTaskId`.'
+
+runs:
+  using: 'node24'
+  main: 'dist/index.js'
