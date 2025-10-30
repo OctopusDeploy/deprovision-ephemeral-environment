@@ -67495,9 +67495,9 @@ async function deprovisionEnvironment(context) {
     })));
     if (deprovisioningRuns.length > 0) {
         client.info([
-            `Rubook runs:`,
+            `🎉 Deprovisioning runbook runs:`,
             ...deprovisioningRuns.map(run => `  runbookRunId: ${run.RunbookRunId}, serverTaskId: ${run.TaskId}`),
-            `Check the status of all deprovisioning runbook runs to confirm that deprovisioning has completed successfully.`
+            `Check the status of all runbook runs to confirm that deprovisioning has completed successfully.`
         ].join('\n'));
     }
     context.writeStepSummary(`🐙 Octopus Deploy is deprovisioning ephemeral environment **${parameters.name}**.`);
