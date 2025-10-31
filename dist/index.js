@@ -67474,11 +67474,11 @@ async function deprovisionEphemeralEnvironmentFromInputs(client, parameters, con
         client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for project '${parameters.project}' in Octopus Deploy...`);
         const project = await GetProjectByName(client, parameters.project, parameters.space, context);
         const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironmentForProject(environment.Id, project.Id);
-        if (!deprovisioningResponse.DeprovisioningRun) {
+        if (!deprovisioningResponse) {
             throw new Error(`Error deprovisioning environment: '${parameters.name}'.`);
         }
         client.info(`Deprovisioning started successfully.`);
-        return [deprovisioningResponse.DeprovisioningRun];
+        return deprovisioningResponse.DeprovisioningRun ? [deprovisioningResponse.DeprovisioningRun] : [];
     }
 }
 async function GetProjectByName(client, projectName, spaceName, context) {
@@ -67487,7 +67487,7 @@ async function GetProjectByName(client, projectName, spaceName, context) {
     try {
         const response = await projectRepository.list({ partialName: projectName });
         const projects = response.Items;
-        project = projects.find(p => p.Name === projectName);
+        project = projects.find(p => p.Name.toLowerCase() === projectName.toLowerCase());
     }
     catch (error) {
         context.error?.(`Error getting project by name: ${error}`);

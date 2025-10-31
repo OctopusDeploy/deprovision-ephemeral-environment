@@ -27,11 +27,11 @@ export async function deprovisionEphemeralEnvironmentFromInputs(client: Client, 
     const project = await GetProjectByName(client, parameters.project!, parameters.space, context);
 
     const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironmentForProject(environment.Id, project.Id);
-    if (!deprovisioningResponse.DeprovisioningRun) {
+    if (!deprovisioningResponse) {
       throw new Error(`Error deprovisioning environment: '${parameters.name}'.`);
     }
     client.info(`Deprovisioning started successfully.`);
-    return [deprovisioningResponse.DeprovisioningRun];
+    return deprovisioningResponse.DeprovisioningRun ? [deprovisioningResponse.DeprovisioningRun] : [];
   }  
 }
 
@@ -43,7 +43,7 @@ export async function GetProjectByName(client: Client, projectName: string, spac
   try {
     const response = await projectRepository.list({ partialName: projectName });
     const projects = response.Items;
-    project = projects.find(p => p.Name === projectName);
+    project = projects.find(p => p.Name.toLowerCase() === projectName.toLowerCase());
 
   } catch (error) {
     context.error?.(`Error getting project by name: ${error}`);
