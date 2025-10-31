@@ -67409,6 +67409,9 @@ class ActionContextImplementation {
     getInput(name, options) {
         return (0, core_1.getInput)(name, options);
     }
+    getBooleanInput(name, options) {
+        return (0, core_1.getBooleanInput)(name, options);
+    }
     setOutput(name, value) {
         (0, core_1.setOutput)(name, value);
     }
@@ -67446,21 +67449,56 @@ exports.ActionContextImplementation = ActionContextImplementation;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.deprovisionEphemeralEnvironmentFromInputs = deprovisionEphemeralEnvironmentFromInputs;
+exports.GetProjectByName = GetProjectByName;
 const api_client_1 = __nccwpck_require__(1212);
-async function deprovisionEphemeralEnvironmentFromInputs(client, parameters) {
-    client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' in Octopus Deploy...`);
+async function deprovisionEphemeralEnvironmentFromInputs(client, parameters, context) {
     const environmentRepository = new api_client_1.EnvironmentRepository(client, parameters.space);
     const environment = await environmentRepository.getEnvironmentByName(parameters.name);
     if (!environment) {
         client.info(`🚩 Has your environment already been deprovisioned? No environment was found with the name: '${parameters.name}'. Skipping deprovisioning.`);
         return [];
     }
-    const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironment(environment.Id);
-    if (!deprovisioningResponse.DeprovisioningRuns) {
-        throw new Error(`Error deprovisioning environment: '${parameters.name}'.`);
+    if (!parameters.allProjects && !parameters.project) {
+        throw new Error("To deprovision for a single project a project name must be provided.");
     }
-    client.info(`Deprovisioning started successfully.`);
-    return deprovisioningResponse.DeprovisioningRuns;
+    if (parameters.allProjects) {
+        client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for all projects in Octopus Deploy...`);
+        const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironment(environment.Id);
+        if (!deprovisioningResponse.DeprovisioningRuns) {
+            throw new Error(`Error deprovisioning environment: '${parameters.name}'.`);
+        }
+        client.info(`Deprovisioning started successfully.`);
+        return deprovisioningResponse.DeprovisioningRuns;
+    }
+    else {
+        client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for project '${parameters.project}' in Octopus Deploy...`);
+        const project = await GetProjectByName(client, parameters.project, parameters.space, context);
+        const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironmentForProject(environment.Id, project.Id);
+        if (!deprovisioningResponse) {
+            throw new Error(`Error deprovisioning environment: '${parameters.name}'.`);
+        }
+        client.info(`Deprovisioning started successfully.`);
+        return deprovisioningResponse.DeprovisioningRun ? [deprovisioningResponse.DeprovisioningRun] : [];
+    }
+}
+async function GetProjectByName(client, projectName, spaceName, context) {
+    const projectRepository = new api_client_1.ProjectRepository(client, spaceName);
+    let project;
+    try {
+        const response = await projectRepository.list({ partialName: projectName });
+        const projects = response.Items;
+        project = projects.find(p => p.Name.toLowerCase() === projectName.toLowerCase());
+    }
+    catch (error) {
+        context.error?.(`Error getting project by name: ${error}`);
+    }
+    if (project) {
+        return project;
+    }
+    else {
+        context.error?.(`Project, "${projectName}" not found`);
+        throw new Error(`Project, "${projectName}" not found`);
+    }
 }
 //# sourceMappingURL=api-wrapper.js.map
 
@@ -67486,7 +67524,7 @@ async function deprovisionEnvironment(context) {
         logging: context
     };
     const client = await api_client_1.Client.create(config);
-    const deprovisioningRuns = await (0, api_wrapper_1.deprovisionEphemeralEnvironmentFromInputs)(client, parameters);
+    const deprovisioningRuns = await (0, api_wrapper_1.deprovisionEphemeralEnvironmentFromInputs)(client, parameters, context);
     context.setOutput('deprovisioning_runbook_runs', JSON.stringify(deprovisioningRuns.map(run => {
         return {
             runbookRunId: run.RunbookRunId,
@@ -67521,11 +67559,13 @@ const EnvironmentVariables = {
 };
 function getInputParameters(context) {
     const parameters = {
+        name: context.getInput('name', { required: true }),
+        allProjects: context.getBooleanInput('all_projects'),
+        project: context.getInput('project'),
+        space: context.getInput('space') || process.env[EnvironmentVariables.Space] || '',
         server: context.getInput('server') || process.env[EnvironmentVariables.URL] || '',
         apiKey: context.getInput('api_key') || process.env[EnvironmentVariables.ApiKey],
         accessToken: process.env[EnvironmentVariables.AccessToken],
-        space: context.getInput('space') || process.env[EnvironmentVariables.Space] || '',
-        name: context.getInput('name', { required: true })
     };
     const errors = [];
     if (!parameters.server) {
@@ -67536,6 +67576,12 @@ function getInputParameters(context) {
     }
     if (!parameters.space) {
         errors.push("The Octopus space name is required, please specify explicitly through the 'space' input or set the OCTOPUS_SPACE environment variable.");
+    }
+    if (parameters.allProjects && parameters.project) {
+        errors.push("Cannot deprovision for all projects when a project name is provided. Please either set the 'all_projects' input to false or remove the 'project' input.");
+    }
+    if (!parameters.allProjects && !parameters.project) {
+        errors.push("The project name is required when 'all_projects' is not set to true. Please specify the project through the 'project' input or set the 'all_projects' input to true.");
     }
     if (errors.length > 0) {
         throw new Error(errors.join('\n'));

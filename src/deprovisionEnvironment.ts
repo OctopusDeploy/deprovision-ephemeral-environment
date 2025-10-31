@@ -15,7 +15,7 @@ export async function deprovisionEnvironment(context: ActionContext): Promise<vo
     }
     const client = await Client.create(config);
 
-    const deprovisioningRuns = await deprovisionEphemeralEnvironmentFromInputs(client, parameters);
+    const deprovisioningRuns = await deprovisionEphemeralEnvironmentFromInputs(client, parameters, context);
 
     context.setOutput(
         'deprovisioning_runbook_runs',

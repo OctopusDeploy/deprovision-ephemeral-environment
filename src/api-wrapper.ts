@@ -1,9 +1,8 @@
+import { ActionContext } from './ActionContext';
 import { InputParameters } from './input-parameters';
-import { Client, EnvironmentRepository, DeprovisioningRunbookRun } from '@octopusdeploy/api-client';
+import { Client, EnvironmentRepository, DeprovisioningRunbookRun, Project, ProjectRepository } from '@octopusdeploy/api-client';
 
-export async function deprovisionEphemeralEnvironmentFromInputs(client: Client, parameters: InputParameters): Promise<DeprovisioningRunbookRun[]> {
-  client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' in Octopus Deploy...`);
-
+export async function deprovisionEphemeralEnvironmentFromInputs(client: Client, parameters: InputParameters, context: ActionContext): Promise<DeprovisioningRunbookRun[]> {  
   const environmentRepository = new EnvironmentRepository(client, parameters.space);
 
   const environment = await environmentRepository.getEnvironmentByName(parameters.name);
@@ -12,11 +11,48 @@ export async function deprovisionEphemeralEnvironmentFromInputs(client: Client, 
     return [];
   }
 
-  const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironment(environment.Id);
-  if (!deprovisioningResponse.DeprovisioningRuns) {
-    throw new Error(`Error deprovisioning environment: '${parameters.name}'.`);
+  if (!parameters.allProjects && !parameters.project) {
+    throw new Error("To deprovision for a single project a project name must be provided.");
   }
-  client.info(`Deprovisioning started successfully.`);
+  if (parameters.allProjects) {
+    client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for all projects in Octopus Deploy...`);
+    const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironment(environment.Id);
+    if (!deprovisioningResponse.DeprovisioningRuns) {
+      throw new Error(`Error deprovisioning environment: '${parameters.name}'.`);
+    }
+    client.info(`Deprovisioning started successfully.`);
+    return deprovisioningResponse.DeprovisioningRuns;
+  } else {
+    client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for project '${parameters.project}' in Octopus Deploy...`);
+    const project = await GetProjectByName(client, parameters.project!, parameters.space, context);
 
-  return deprovisioningResponse.DeprovisioningRuns;
+    const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironmentForProject(environment.Id, project.Id);
+    if (!deprovisioningResponse) {
+      throw new Error(`Error deprovisioning environment: '${parameters.name}'.`);
+    }
+    client.info(`Deprovisioning started successfully.`);
+    return deprovisioningResponse.DeprovisioningRun ? [deprovisioningResponse.DeprovisioningRun] : [];
+  }  
+}
+
+export async function GetProjectByName(client: Client, projectName: string, spaceName: string, context: ActionContext): Promise<Project> {
+  const projectRepository = new ProjectRepository(client, spaceName);
+
+  let project: Project | undefined;
+
+  try {
+    const response = await projectRepository.list({ partialName: projectName });
+    const projects = response.Items;
+    project = projects.find(p => p.Name.toLowerCase() === projectName.toLowerCase());
+
+  } catch (error) {
+    context.error?.(`Error getting project by name: ${error}`);
+  }
+
+  if (project) {
+    return project;
+  } else {
+    context.error?.(`Project, "${projectName}" not found`);
+    throw new Error(`Project, "${projectName}" not found`);
+  }
 }

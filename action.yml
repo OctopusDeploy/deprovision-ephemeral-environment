@@ -9,6 +9,12 @@ inputs:
   name:
     description: 'The name of the ephemeral environment to deprovision.'
     required: true
+  all_projects:
+    description: 'If true, the ephemeral environment will be deprovisioned across all projects in the Octopus Deploy instance. If false, the ephemeral environment will only be deprovisioned from the specified project. Defaults to false'
+    type: 'boolean'
+    default: false
+  project:
+    description: 'The name of the project. Required when deprovisioning for a single project.'
   space:
     description: 'The name of the space containing the ephemeral environment. The space name is required, but you may also use the OCTOPUS_SPACE environment variable.'
   server:
