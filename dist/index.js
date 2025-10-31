@@ -67456,6 +67456,9 @@ async function deprovisionEphemeralEnvironmentFromInputs(client, parameters, con
         client.info(`🚩 Has your environment already been deprovisioned? No environment was found with the name: '${parameters.name}'. Skipping deprovisioning.`);
         return [];
     }
+    if (!parameters.deprovisionForAllProjects && !parameters.project) {
+        throw new Error("To deprovision for a single project a project name must be provided.");
+    }
     if (parameters.deprovisionForAllProjects) {
         const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironment(environment.Id);
         if (!deprovisioningResponse.DeprovisioningRuns) {
