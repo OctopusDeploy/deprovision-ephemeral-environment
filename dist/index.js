@@ -67452,7 +67452,8 @@ async function deprovisionEphemeralEnvironmentFromInputs(client, parameters) {
     const environmentRepository = new api_client_1.EnvironmentRepository(client, parameters.space);
     const environment = await environmentRepository.getEnvironmentByName(parameters.name);
     if (!environment) {
-        throw new Error(`No environment found with name: '${parameters.name}'.`);
+        client.info(`🚩 Has your environment already been deprovisioned? No environment was found with the name: '${parameters.name}'. Skipping deprovisioning.`);
+        return [];
     }
     const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironment(environment.Id);
     if (!deprovisioningResponse.DeprovisioningRuns) {
@@ -67494,13 +67495,10 @@ async function deprovisionEnvironment(context) {
     })));
     if (deprovisioningRuns.length > 0) {
         client.info([
-            `Rubook runs:`,
+            `🎉 Deprovisioning runbook runs:`,
             ...deprovisioningRuns.map(run => `  runbookRunId: ${run.RunbookRunId}, serverTaskId: ${run.TaskId}`),
-            `Check the status of all deprovisioning runbook runs to confirm that deprovisioning has completed successfully.`
+            `Check the status of all runbook runs to confirm that deprovisioning has completed successfully.`
         ].join('\n'));
-    }
-    else {
-        client.info('No deprovisioning runbook runs were started. Deprovisioning completed successfully.');
     }
     context.writeStepSummary(`🐙 Octopus Deploy is deprovisioning ephemeral environment **${parameters.name}**.`);
 }

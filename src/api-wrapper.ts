@@ -8,7 +8,8 @@ export async function deprovisionEphemeralEnvironmentFromInputs(client: Client, 
 
   const environment = await environmentRepository.getEnvironmentByName(parameters.name);
   if (!environment) {
-    throw new Error(`No environment found with name: '${parameters.name}'.`);
+    client.info(`🚩 Has your environment already been deprovisioned? No environment was found with the name: '${parameters.name}'. Skipping deprovisioning.`);
+    return [];
   }
 
   const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironment(environment.Id);
