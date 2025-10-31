@@ -10,6 +10,10 @@ export class ActionContextForTesting implements ActionContext {
         this.inputs[name] = value;
     }
 
+    addBooleanInput(name: string, value: boolean): void {
+        this.inputs[name] = value;
+    }
+
     getInput(name: string, options?: InputOptions): string {
         const inputValue = this.inputs[name] as string;
         if (inputValue === undefined && options?.required === true) throw new Error(`Input required and not supplied: ${name}`);
