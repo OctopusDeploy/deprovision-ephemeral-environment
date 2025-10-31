@@ -6,6 +6,12 @@ on:
       name:
         description: 'The name of the ephemeral environment to deprovision.'
         required: true
+      deprovision_for_all_projects:
+        description: 'If true, the ephemeral environment will be deprovisioned across all projects in the Octopus Deploy instance. If falsey, the ephemeral environment will only be deprovisioned from the specified project.'
+        type: 'boolean'
+        default: false
+      project:
+        description: 'The name of the project. Required when deprovisioning for a single project.'
       server:
         type: string
         description: The url of the Octopus Instance. Will default to repository variable TEST_INSTANCE_URL if not supplied.
@@ -36,6 +42,8 @@ jobs:
         uses: ./
         with:
           name: ${{ inputs.name }}
+          deprovision_for_all_projects: ${{ inputs.deprovision_for_all_projects }}
+          project: ${{ inputs.project }}
           space: ${{ inputs.space || vars.TEST_SPACE_NAME}}
 
       - name: Show Test Action Output

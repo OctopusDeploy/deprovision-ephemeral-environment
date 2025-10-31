@@ -1,7 +1,7 @@
 import type { ActionContext, InputOptions } from "./ActionContext";
 
 export class ActionContextForTesting implements ActionContext {
-    inputs: Record<string, string> = {};
+    inputs: Record<string, string> | Record<string, boolean> = {};
     outputs: Record<string, unknown> = {};
     failureMessage: string | undefined;
     stepSummary: string = "";
@@ -11,9 +11,15 @@ export class ActionContextForTesting implements ActionContext {
     }
 
     getInput(name: string, options?: InputOptions): string {
-        const inputValue = this.inputs[name];
+        const inputValue = this.inputs[name] as string;
         if (inputValue === undefined && options?.required === true) throw new Error(`Input required and not supplied: ${name}`);
         return inputValue || "";
+    }
+
+    getBooleanInput(name: string, options?: InputOptions): boolean {
+        const inputValue = this.inputs[name] as boolean;
+        if (inputValue === undefined && options?.required === true) throw new Error(`Input required and not supplied: ${name}`);
+        return inputValue;
     }
 
     setOutput(name: string, value: unknown): void {

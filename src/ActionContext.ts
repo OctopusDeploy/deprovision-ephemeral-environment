@@ -4,6 +4,7 @@ export type InputOptions = {
 
 export interface ActionContext {
     getInput: (name: string, options?: InputOptions) => string;
+    getBooleanInput: (name: string, options?: InputOptions) => boolean;
     setOutput: (name: string, value: string) => void;
     setFailed: (message: string) => void;
     writeStepSummary: (summary: string) => void;

@@ -20,7 +20,7 @@ export interface InputParameters {
 export function getInputParameters(context: ActionContext): InputParameters {
   const parameters = {
     name: context.getInput('name', { required: true }),
-    deprovisionForAllProjects: context.getInput('deprovision_for_all_projects') == "true",
+    deprovisionForAllProjects: context.getBooleanInput('deprovision_for_all_projects'),
     project: context.getInput('project'),
     space: context.getInput('space') || process.env[EnvironmentVariables.Space] || '',
     server: context.getInput('server') || process.env[EnvironmentVariables.URL] || '',
