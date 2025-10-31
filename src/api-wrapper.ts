@@ -28,7 +28,7 @@ export async function deprovisionEphemeralEnvironmentFromInputs(client: Client, 
 
     const environmentProjectStatusResponse = await environmentRepository.getEphemeralEnvironmentProjectStatus(environment.Id, project.Id);
     if (environmentProjectStatusResponse.Status == 'NotConnected') {
-      context.info(`🔗 Environment ${parameters.name} is not connected to project ${parameters.project}. Skipping deprovisioning.`);
+      context.info(`🔗 Environment '${parameters.name}' is not connected to project '${parameters.project}'. Skipping deprovisioning.`);
       return [];
     }
 
