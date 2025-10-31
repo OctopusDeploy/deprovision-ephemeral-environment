@@ -2,9 +2,7 @@ import { ActionContext } from './ActionContext';
 import { InputParameters } from './input-parameters';
 import { Client, EnvironmentRepository, DeprovisioningRunbookRun, Project, ProjectRepository } from '@octopusdeploy/api-client';
 
-export async function deprovisionEphemeralEnvironmentFromInputs(client: Client, parameters: InputParameters, context: ActionContext): Promise<DeprovisioningRunbookRun[]> {
-  client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' in Octopus Deploy...`);
-  
+export async function deprovisionEphemeralEnvironmentFromInputs(client: Client, parameters: InputParameters, context: ActionContext): Promise<DeprovisioningRunbookRun[]> {  
   const environmentRepository = new EnvironmentRepository(client, parameters.space);
   
   const environment = await environmentRepository.getEnvironmentByName(parameters.name);
@@ -17,6 +15,7 @@ export async function deprovisionEphemeralEnvironmentFromInputs(client: Client, 
     throw new Error("To deprovision for a single project a project name must be provided.");
   }
   if (parameters.deprovisionForAllProjects) {
+    client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for all projects in Octopus Deploy...`);
     const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironment(environment.Id);
     if (!deprovisioningResponse.DeprovisioningRuns) {
       throw new Error(`Error deprovisioning environment: '${parameters.name}'.`);
@@ -24,6 +23,7 @@ export async function deprovisionEphemeralEnvironmentFromInputs(client: Client, 
     client.info(`Deprovisioning started successfully.`);
     return deprovisioningResponse.DeprovisioningRuns;
   } else {
+    client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for project '${parameters.project}' in Octopus Deploy...`);
     const project = await GetProjectByName(client, parameters.project!, parameters.space, context);
 
     const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironmentForProject(environment.Id, project.Id);

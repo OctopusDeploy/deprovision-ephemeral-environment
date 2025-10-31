@@ -67409,6 +67409,9 @@ class ActionContextImplementation {
     getInput(name, options) {
         return (0, core_1.getInput)(name, options);
     }
+    getBooleanInput(name, options) {
+        return (0, core_1.getBooleanInput)(name, options);
+    }
     setOutput(name, value) {
         (0, core_1.setOutput)(name, value);
     }
@@ -67449,7 +67452,6 @@ exports.deprovisionEphemeralEnvironmentFromInputs = deprovisionEphemeralEnvironm
 exports.GetProjectByName = GetProjectByName;
 const api_client_1 = __nccwpck_require__(1212);
 async function deprovisionEphemeralEnvironmentFromInputs(client, parameters, context) {
-    client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' in Octopus Deploy...`);
     const environmentRepository = new api_client_1.EnvironmentRepository(client, parameters.space);
     const environment = await environmentRepository.getEnvironmentByName(parameters.name);
     if (!environment) {
@@ -67460,6 +67462,7 @@ async function deprovisionEphemeralEnvironmentFromInputs(client, parameters, con
         throw new Error("To deprovision for a single project a project name must be provided.");
     }
     if (parameters.deprovisionForAllProjects) {
+        client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for all projects in Octopus Deploy...`);
         const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironment(environment.Id);
         if (!deprovisioningResponse.DeprovisioningRuns) {
             throw new Error(`Error deprovisioning environment: '${parameters.name}'.`);
@@ -67468,6 +67471,7 @@ async function deprovisionEphemeralEnvironmentFromInputs(client, parameters, con
         return deprovisioningResponse.DeprovisioningRuns;
     }
     else {
+        client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for project '${parameters.project}' in Octopus Deploy...`);
         const project = await GetProjectByName(client, parameters.project, parameters.space, context);
         const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironmentForProject(environment.Id, project.Id);
         if (!deprovisioningResponse.DeprovisioningRun) {
@@ -67556,7 +67560,7 @@ const EnvironmentVariables = {
 function getInputParameters(context) {
     const parameters = {
         name: context.getInput('name', { required: true }),
-        deprovisionForAllProjects: context.getInput('deprovision_for_all_projects') == "true",
+        deprovisionForAllProjects: context.getBooleanInput('deprovision_for_all_projects'),
         project: context.getInput('project'),
         space: context.getInput('space') || process.env[EnvironmentVariables.Space] || '',
         server: context.getInput('server') || process.env[EnvironmentVariables.URL] || '',
