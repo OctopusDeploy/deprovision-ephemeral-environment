@@ -4566,6 +4566,23 @@ var EnvironmentRepository = /** @class */ (function (_super) {
             });
         });
     };
+    EnvironmentRepository.prototype.getEphemeralEnvironmentProjectStatus = function (environmentId, projectId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.client.request("".concat(__1.spaceScopedRoutePrefix, "/projects/{projectId}/environments/ephemeral/{id}/status"), {
+                            spaceName: this.spaceName,
+                            projectId: projectId,
+                            id: environmentId,
+                        })];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, response];
+                }
+            });
+        });
+    };
     EnvironmentRepository.prototype.deprovisionEphemeralEnvironmentForProject = function (environmentId, projectId) {
         return __awaiter(this, void 0, void 0, function () {
             var response;
@@ -4612,7 +4629,7 @@ var EnvironmentRepository = /** @class */ (function (_super) {
                         })];
                     case 1:
                         listResponse = _a.sent();
-                        matchingEnvironments = listResponse.Items.filter(function (env) { return env.Name === environmentName; });
+                        matchingEnvironments = listResponse.Items.filter(function (env) { return env.Name.toLowerCase() === environmentName.toLowerCase(); });
                         if (matchingEnvironments.length > 1) {
                             throw (0, console_1.error)("Multiple environments found with the name '".concat(environmentName));
                         }
@@ -67473,6 +67490,11 @@ async function deprovisionEphemeralEnvironmentFromInputs(client, parameters, con
     else {
         client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for project '${parameters.project}' in Octopus Deploy...`);
         const project = await GetProjectByName(client, parameters.project, parameters.space, context);
+        const environmentProjectStatusResponse = await environmentRepository.getEphemeralEnvironmentProjectStatus(environment.Id, project.Id);
+        if (environmentProjectStatusResponse.Status == 'NotConnected') {
+            context.info(`🔗 Environment '${parameters.name}' is not connected to project '${parameters.project}'. Skipping deprovisioning.`);
+            return [];
+        }
         const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironmentForProject(environment.Id, project.Id);
         if (!deprovisioningResponse) {
             throw new Error(`Error deprovisioning environment: '${parameters.name}'.`);

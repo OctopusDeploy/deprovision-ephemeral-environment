@@ -26,6 +26,12 @@ export async function deprovisionEphemeralEnvironmentFromInputs(client: Client, 
     client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for project '${parameters.project}' in Octopus Deploy...`);
     const project = await GetProjectByName(client, parameters.project!, parameters.space, context);
 
+    const environmentProjectStatusResponse = await environmentRepository.getEphemeralEnvironmentProjectStatus(environment.Id, project.Id);
+    if (environmentProjectStatusResponse.Status == 'NotConnected') {
+      context.info(`🔗 Environment '${parameters.name}' is not connected to project '${parameters.project}'. Skipping deprovisioning.`);
+      return [];
+    }
+
     const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironmentForProject(environment.Id, project.Id);
     if (!deprovisioningResponse) {
       throw new Error(`Error deprovisioning environment: '${parameters.name}'.`);
