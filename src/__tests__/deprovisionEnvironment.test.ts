@@ -71,6 +71,11 @@ describe("deprovisionEnvironment", () => {
                     DeprovisioningRun: deprovisioningRun
                 });
             }),
+            http.get("https://my.octopus.app/api/:spaceId/projects/:projectId/environments/ephemeral/:environmentId/status", () => {
+                return HttpResponse.json({
+                    Status: "Connected"
+                });
+            }),
             http.get("https://my.octopus.app/api/:spaceId/environments/v2", () => {
                 return HttpResponse.json({
                     Items: [{
