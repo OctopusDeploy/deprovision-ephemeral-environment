@@ -67458,10 +67458,10 @@ async function deprovisionEphemeralEnvironmentFromInputs(client, parameters, con
         client.info(`🚩 Has your environment already been deprovisioned? No environment was found with the name: '${parameters.name}'. Skipping deprovisioning.`);
         return [];
     }
-    if (!parameters.deprovisionForAllProjects && !parameters.project) {
+    if (!parameters.allProjects && !parameters.project) {
         throw new Error("To deprovision for a single project a project name must be provided.");
     }
-    if (parameters.deprovisionForAllProjects) {
+    if (parameters.allProjects) {
         client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for all projects in Octopus Deploy...`);
         const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironment(environment.Id);
         if (!deprovisioningResponse.DeprovisioningRuns) {
@@ -67560,7 +67560,7 @@ const EnvironmentVariables = {
 function getInputParameters(context) {
     const parameters = {
         name: context.getInput('name', { required: true }),
-        deprovisionForAllProjects: context.getBooleanInput('deprovision_for_all_projects'),
+        allProjects: context.getBooleanInput('all_projects'),
         project: context.getInput('project'),
         space: context.getInput('space') || process.env[EnvironmentVariables.Space] || '',
         server: context.getInput('server') || process.env[EnvironmentVariables.URL] || '',
@@ -67577,11 +67577,11 @@ function getInputParameters(context) {
     if (!parameters.space) {
         errors.push("The Octopus space name is required, please specify explicitly through the 'space' input or set the OCTOPUS_SPACE environment variable.");
     }
-    if (parameters.deprovisionForAllProjects && parameters.project) {
-        errors.push("Cannot deprovision for all projects when a project name is provided. Please either set the 'deprovision_for_all_projects' input to false or remove the 'project' input.");
+    if (parameters.allProjects && parameters.project) {
+        errors.push("Cannot deprovision for all projects when a project name is provided. Please either set the 'all_projects' input to false or remove the 'project' input.");
     }
-    if (!parameters.deprovisionForAllProjects && !parameters.project) {
-        errors.push("The project name is required when 'deprovision_for_all_projects' is not set to true. Please specify the project through the 'project' input or set the 'deprovision_for_all_projects' input to true.");
+    if (!parameters.allProjects && !parameters.project) {
+        errors.push("The project name is required when 'all_projects' is not set to true. Please specify the project through the 'project' input or set the 'all_projects' input to true.");
     }
     if (errors.length > 0) {
         throw new Error(errors.join('\n'));

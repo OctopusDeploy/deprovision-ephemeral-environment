@@ -11,7 +11,7 @@ describe("deprovisionEnvironment", () => {
         context.addInput("api_key", "API-XXXXXXXXXXXXXXXXXXXXXXXX");
         context.addInput("space", "Default");
         context.addInput("name", "My Ephemeral Environment");
-        context.addBooleanInput("deprovision_for_all_projects", true); // Set to deprovision for all projects
+        context.addBooleanInput("all_projects", true); // Set to deprovision for all projects
 
         const deprovisioningRuns = [
             { RunbookRunId: "Runbooks-12345", TaskId: "ServerTasks-67890" },
@@ -114,7 +114,7 @@ describe("deprovisionEnvironment", () => {
         context.addInput("api_key", "API-XXXXXXXXXXXXXXXXXXXXXXXX");
         context.addInput("space", "Default");
         context.addInput("name", "My Ephemeral Environment");
-        context.addBooleanInput("deprovision_for_all_projects", true); // Set to deprovision for all projects
+        context.addBooleanInput("all_projects", true); // Set to deprovision for all projects
         context.addInput("project", "My Project"); // Set to deprovision for a single project
 
         await expect(deprovisionEnvironment(context)).rejects.toThrow(/project name is provided/);
