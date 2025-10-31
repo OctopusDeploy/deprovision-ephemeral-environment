@@ -67492,7 +67492,7 @@ async function GetProjectByName(client, projectName, spaceName, context) {
     catch (error) {
         context.error?.(`Error getting project by name: ${error}`);
     }
-    if (project !== null && project !== undefined) {
+    if (project) {
         return project;
     }
     else {

@@ -50,6 +50,8 @@ describe("deprovisionEnvironment", () => {
 
         await deprovisionEnvironment(context);
         expect(context.getOutput('deprovisioning_runbook_runs')).toEqual(expectedOutput);
+
+        server.close();
     });
 
     test("Function to deprovision for a single project outputs deprovisioning runbook run on success", async () => {
@@ -60,7 +62,7 @@ describe("deprovisionEnvironment", () => {
         context.addInput("project", "My Project"); // Set to deprovision for a single project
         context.addInput("name", "My Ephemeral Environment");
 
-        const deprovisioningRun = { RunbookRunId: "Runbooks-12345", TaskId: "ServerTasks-67890" }
+        const deprovisioningRun = { RunbookRunId: "Runbooks-12345", TaskId: "ServerTasks-67890" };
         const expectedOutput = JSON.stringify([{ runbookRunId: deprovisioningRun.RunbookRunId, serverTaskId: deprovisioningRun.TaskId }]);
 
         const server = setupServer(
@@ -102,6 +104,8 @@ describe("deprovisionEnvironment", () => {
 
         await deprovisionEnvironment(context);
         expect(context.getOutput('deprovisioning_runbook_runs')).toEqual(expectedOutput);
+
+        server.close();
     });
 
     test("When deprovision_all_projects is true and project is provided, function to deprovision should error", async () => {

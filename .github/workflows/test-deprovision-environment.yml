@@ -7,7 +7,7 @@ on:
         description: 'The name of the ephemeral environment to deprovision.'
         required: true
       deprovision_for_all_projects:
-        description: Deprovision for all projects'
+        description: Deprovision for all projects
         type: 'boolean'
         default: false
       project:

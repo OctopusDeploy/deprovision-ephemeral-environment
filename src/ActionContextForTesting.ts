@@ -1,7 +1,7 @@
 import type { ActionContext, InputOptions } from "./ActionContext";
 
 export class ActionContextForTesting implements ActionContext {
-    inputs: Record<string, string> | Record<string, boolean> = {};
+    inputs: Record<string, string | boolean> = {};
     outputs: Record<string, unknown> = {};
     failureMessage: string | undefined;
     stepSummary: string = "";

@@ -49,7 +49,7 @@ export async function GetProjectByName(client: Client, projectName: string, spac
     context.error?.(`Error getting project by name: ${error}`);
   }
 
-  if (project !== null && project !== undefined) {
+  if (project) {
     return project;
   } else {
     context.error?.(`Project, "${projectName}" not found`);
