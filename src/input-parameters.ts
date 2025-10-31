@@ -9,6 +9,8 @@ const EnvironmentVariables = {
 
 export interface InputParameters {
   name: string;
+  deprovisionForAllProjects: boolean;
+  project?: string;
   space: string;
   server: string;
   apiKey?: string;
@@ -17,11 +19,13 @@ export interface InputParameters {
 
 export function getInputParameters(context: ActionContext): InputParameters {
   const parameters = {
+    name: context.getInput('name', { required: true }),
+    deprovisionForAllProjects: context.getInput('deprovision_for_all_projects') == "true",
+    project: context.getInput('project'),
+    space: context.getInput('space') || process.env[EnvironmentVariables.Space] || '',
     server: context.getInput('server') || process.env[EnvironmentVariables.URL] || '',
     apiKey: context.getInput('api_key') || process.env[EnvironmentVariables.ApiKey],
     accessToken: process.env[EnvironmentVariables.AccessToken],
-    space: context.getInput('space') || process.env[EnvironmentVariables.Space] || '',
-    name: context.getInput('name', { required: true })
   };
 
   const errors: string[] = [];
@@ -40,6 +44,17 @@ export function getInputParameters(context: ActionContext): InputParameters {
   if (!parameters.space) {
     errors.push(
       "The Octopus space name is required, please specify explicitly through the 'space' input or set the OCTOPUS_SPACE environment variable."
+    );
+  }
+
+  if (parameters.deprovisionForAllProjects && parameters.project) {
+    errors.push(
+      "Cannot deprovision for all projects when a project name is provided. Please either set the 'deprovision_for_all_projects' input to false or remove the 'project' input."
+    );
+  }
+  if (!parameters.deprovisionForAllProjects && !parameters.project) {
+    errors.push(
+      "The project name is required when 'deprovision_for_all_projects' is not set to true. Please specify the project through the 'project' input or set the 'deprovision_for_all_projects' input to true."
     );
   }
 
