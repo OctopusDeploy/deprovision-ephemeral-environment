@@ -67481,7 +67481,6 @@ async function deprovisionEphemeralEnvironmentForAllProjects(environment, spaceN
     if (!deprovisioningResponse.DeprovisioningRuns) {
         throw new Error(`Error deprovisioning environment: '${environment.Name}'.`);
     }
-    client.info(`Deprovisioning started successfully.`);
     // Returns an empty array in the case where no projects have a deprovisioning runbook
     return deprovisioningResponse.DeprovisioningRuns;
 }
@@ -67491,7 +67490,6 @@ async function deprovisionEphemeralEnvironmentForProject(environment, projectId,
     if (!deprovisioningResponse) {
         throw new Error(`Error deprovisioning environment: '${environment.Name}'.`);
     }
-    client.info(`Deprovisioning started successfully.`);
     // Returns undefined in the case where the project does not have a deprovisioning runbook
     return deprovisioningResponse.DeprovisioningRun || undefined;
 }
@@ -67551,27 +67549,30 @@ async function deprovisionEnvironment(context) {
             serverTaskId: run.TaskId,
         };
     })));
-    if (deprovisioningRuns.length > 0) {
-        client.info([
-            `🎉 Deprovisioning runbook runs:`,
-            ...deprovisioningRuns.map(run => `  runbookRunId: ${run.RunbookRunId}, serverTaskId: ${run.TaskId}`),
-            `Check the status of all runbook runs to confirm that deprovisioning has completed successfully.`
-        ].join('\n'));
-    }
     context.writeStepSummary(`🐙 Octopus Deploy is deprovisioning ephemeral environment **${parameters.name}**.`);
 }
 async function deprovisionEphemeralEnvironmentFromInputs(client, parameters, context) {
+    if (!parameters.allProjects && !parameters.project) {
+        throw new Error("To deprovision for a single project a project name must be provided.");
+    }
     const environment = await (0, api_wrapper_1.getEnvironmentByName)(parameters.name, parameters.space, client);
     if (!environment) {
         client.info(`🚩 Has your environment already been deprovisioned? No environment was found with the name: '${parameters.name}'. Skipping deprovisioning.`);
         return [];
     }
-    if (!parameters.allProjects && !parameters.project) {
-        throw new Error("To deprovision for a single project a project name must be provided.");
-    }
     if (parameters.allProjects) {
         client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for all projects in Octopus Deploy...`);
         const deprovisioningRunbookRuns = await (0, api_wrapper_1.deprovisionEphemeralEnvironmentForAllProjects)(environment, parameters.space, client);
+        if (deprovisioningRunbookRuns.length == 0) {
+            client.info(`🎉 Deprovisioning completed with no runbook runs required.`);
+        }
+        else {
+            client.info([
+                `🎉 Deprovisioning runbook runs created:`,
+                ...deprovisioningRunbookRuns.map(run => `  runbookRunId: ${run.RunbookRunId}, serverTaskId: ${run.TaskId}`),
+                `Check the status of all runbook runs to confirm that deprovisioning has completed successfully.`
+            ].join('\n'));
+        }
         return deprovisioningRunbookRuns;
     }
     else {
@@ -67583,11 +67584,16 @@ async function deprovisionEphemeralEnvironmentFromInputs(client, parameters, con
             return [];
         }
         const deprovisioningRunbookRun = await (0, api_wrapper_1.deprovisionEphemeralEnvironmentForProject)(environment, project.Id, parameters.space, client);
-        client.info(`Deprovisioning started successfully.`);
         if (!deprovisioningRunbookRun) {
+            client.info(`🎉 Deprovisioning completed with no runbook runs required.`);
             return [];
         }
         else {
+            client.info([
+                `🎉 Deprovisioning runbook run created:`,
+                `  runbookRunId: ${deprovisioningRunbookRun.RunbookRunId}, serverTaskId: ${deprovisioningRunbookRun.TaskId}`,
+                `Check the status of the runbook run to confirm that deprovisioning has completed successfully.`
+            ].join('\n'));
             return [deprovisioningRunbookRun];
         }
     }

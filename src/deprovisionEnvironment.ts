@@ -27,18 +27,16 @@ export async function deprovisionEnvironment(context: ActionContext): Promise<vo
         }))
     );
 
-    if (deprovisioningRuns.length > 0) {
-        client.info([
-            `🎉 Deprovisioning runbook runs:`,
-            ...deprovisioningRuns.map(run => `  runbookRunId: ${run.RunbookRunId}, serverTaskId: ${run.TaskId}`),
-            `Check the status of all runbook runs to confirm that deprovisioning has completed successfully.`
-        ].join('\n'));
-    }
+    
 
     context.writeStepSummary(`🐙 Octopus Deploy is deprovisioning ephemeral environment **${parameters.name}**.`);
 }
 
 export async function deprovisionEphemeralEnvironmentFromInputs(client: Client, parameters: InputParameters, context: ActionContext): Promise<DeprovisioningRunbookRun[]> {
+    
+    if (!parameters.allProjects && !parameters.project) {
+        throw new Error("To deprovision for a single project a project name must be provided.");
+    }
 
     const environment = await getEnvironmentByName(parameters.name, parameters.space, client);
     if (!environment) {
@@ -46,15 +44,22 @@ export async function deprovisionEphemeralEnvironmentFromInputs(client: Client, 
         return [];
     }
 
-    if (!parameters.allProjects && !parameters.project) {
-        throw new Error("To deprovision for a single project a project name must be provided.");
-    }
-
     if (parameters.allProjects) {
         client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for all projects in Octopus Deploy...`);
         const deprovisioningRunbookRuns = await deprovisionEphemeralEnvironmentForAllProjects(environment, parameters.space, client);
-        return deprovisioningRunbookRuns;
+
+        if (deprovisioningRunbookRuns.length == 0) {
+            client.info(`🎉 Deprovisioning completed with no runbook runs required.`);
+        } else {
+            client.info([
+                `🎉 Deprovisioning runbook runs created:`,
+                ...deprovisioningRunbookRuns.map(run => `  runbookRunId: ${run.RunbookRunId}, serverTaskId: ${run.TaskId}`),
+                `Check the status of all runbook runs to confirm that deprovisioning has completed successfully.`
+            ].join('\n'));
+        }
         
+        return deprovisioningRunbookRuns;
+
     } else {
         client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for project '${parameters.project}' in Octopus Deploy...`);
         const project = await GetProjectByName(client, parameters.project!, parameters.space, context);
@@ -66,10 +71,17 @@ export async function deprovisionEphemeralEnvironmentFromInputs(client: Client, 
         }
 
         const deprovisioningRunbookRun = await deprovisionEphemeralEnvironmentForProject(environment, project.Id, parameters.space, client);
-        client.info(`Deprovisioning started successfully.`);
         if (!deprovisioningRunbookRun) {
+            client.info(`🎉 Deprovisioning completed with no runbook runs required.`);
+            
             return [];
         } else {
+            client.info([
+                `🎉 Deprovisioning runbook run created:`,
+                `  runbookRunId: ${deprovisioningRunbookRun.RunbookRunId}, serverTaskId: ${deprovisioningRunbookRun.TaskId}`,
+                `Check the status of the runbook run to confirm that deprovisioning has completed successfully.`
+            ].join('\n'));
+            
             return [deprovisioningRunbookRun];
         }
     }

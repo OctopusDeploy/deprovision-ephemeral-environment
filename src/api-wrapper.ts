@@ -3,7 +3,6 @@ import { ActionContext } from "./ActionContext";
 
 export async function getEnvironmentByName(environmentName: string, spaceName: string, client: Client): Promise<DeploymentEnvironmentV2 | null> {
   const environmentRepository = new EnvironmentRepository(client, spaceName);
-  
   return await environmentRepository.getEnvironmentByName(environmentName);
 }
 
@@ -14,7 +13,6 @@ export async function deprovisionEphemeralEnvironmentForAllProjects(environment:
   if (!deprovisioningResponse.DeprovisioningRuns) {
     throw new Error(`Error deprovisioning environment: '${environment.Name}'.`);
   }
-  client.info(`Deprovisioning started successfully.`);
   
   // Returns an empty array in the case where no projects have a deprovisioning runbook
   return deprovisioningResponse.DeprovisioningRuns;
@@ -26,7 +24,6 @@ export async function deprovisionEphemeralEnvironmentForProject(environment: Dep
   if (!deprovisioningResponse) {
     throw new Error(`Error deprovisioning environment: '${environment.Name}'.`);
   }
-  client.info(`Deprovisioning started successfully.`);
 
   // Returns undefined in the case where the project does not have a deprovisioning runbook
   return deprovisioningResponse.DeprovisioningRun || undefined;
