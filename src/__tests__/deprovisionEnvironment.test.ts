@@ -136,4 +136,91 @@ describe("deprovisionEnvironment", () => {
 
         await expect(deprovisionEnvironment(context)).rejects.toThrow(/project name is required/);
     });
+
+
+    test("When environment does not exist, deprovisioning should be skipped with no error", async () => {
+        const context = new ActionContextForTesting();
+        context.addInput("server", "https://my.octopus.app");
+        context.addInput("api_key", "API-XXXXXXXXXXXXXXXXXXXXXXXX");
+        context.addInput("space", "Default");
+        context.addInput("name", "My Ephemeral Environment");
+        context.addBooleanInput("all_projects", true);
+
+        const server = setupServer(
+            http.get("https://my.octopus.app/api/:spaceId/environments/v2", () => {
+                return HttpResponse.json({
+                    Items: []
+                });
+            }),
+            http.get("https://my.octopus.app/api", () => {
+                return HttpResponse.json([{
+                }]);
+            }),
+            http.get("https://my.octopus.app/api/spaces", () => {
+                return HttpResponse.json({
+                    Items: [{
+                        Name: "Default",
+                        Id: "Spaces-1",
+                    }]
+                });
+            }),
+        );
+        server.listen();
+
+        await deprovisionEnvironment(context);
+        expect(context.infoMessage).toContain(`Skipping deprovisioning`);
+
+        server.close();
+    });
+
+    test("When environment is not connected to a specified project, deprovisioning should be skipped with no error", async () => {
+        const context = new ActionContextForTesting();
+        context.addInput("server", "https://my.octopus.app");
+        context.addInput("api_key", "API-XXXXXXXXXXXXXXXXXXXXXXXX");
+        context.addInput("space", "Default");
+        context.addInput("project", "My Project"); // Set to deprovision for a single project
+        context.addInput("name", "My Ephemeral Environment");
+
+        const server = setupServer(
+            http.get("https://my.octopus.app/api/:spaceId/projects/:projectId/environments/ephemeral/:environmentId/status", () => {
+                return HttpResponse.json({
+                    Status: "NotConnected"
+                });
+            }),
+            http.get("https://my.octopus.app/api/:spaceId/environments/v2", () => {
+                return HttpResponse.json({
+                    Items: [{
+                        Name: "My Ephemeral Environment",
+                        Id: "Environments-1",
+                    }]
+                });
+            }),
+            http.get("https://my.octopus.app/api", () => {
+                return HttpResponse.json([{
+                }]);
+            }),
+            http.get("https://my.octopus.app/api/spaces", () => {
+                return HttpResponse.json({
+                    Items: [{
+                        Name: "Default",
+                        Id: "Spaces-1",
+                    }]
+                });
+            }),
+            http.get("https://my.octopus.app/api/:spaceId/projects", () => {
+                return HttpResponse.json({
+                    Items: [{
+                        Name: "My Project",
+                        Id: "Projects-123",
+                    }]
+                });
+            }),
+        );
+        server.listen();
+
+        await deprovisionEnvironment(context);
+        expect(context.infoMessage).toContain(`Skipping deprovisioning`);
+
+        server.close();
+    });
 });
