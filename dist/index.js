@@ -67557,17 +67557,17 @@ async function deprovisionEphemeralEnvironmentFromInputs(client, parameters, con
     }
     const environment = await (0, api_wrapper_1.getEnvironmentByName)(parameters.name, parameters.space, client);
     if (!environment) {
-        client.info(`🚩 Has your environment already been deprovisioned? No environment was found with the name: '${parameters.name}'. Skipping deprovisioning.`);
+        context.info(`🚩 Has your environment already been deprovisioned? No environment was found with the name: '${parameters.name}'. Skipping deprovisioning.`);
         return [];
     }
     if (parameters.allProjects) {
-        client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for all projects in Octopus Deploy...`);
+        context.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for all projects in Octopus Deploy...`);
         const deprovisioningRunbookRuns = await (0, api_wrapper_1.deprovisionEphemeralEnvironmentForAllProjects)(environment, parameters.space, client);
         if (deprovisioningRunbookRuns.length == 0) {
-            client.info(`🎉 Deprovisioning completed with no runbook runs required.`);
+            context.info(`🎉 Deprovisioning completed with no runbook runs required.`);
         }
         else {
-            client.info([
+            context.info([
                 `🎉 Deprovisioning runbook runs created:`,
                 ...deprovisioningRunbookRuns.map(run => `  runbookRunId: ${run.RunbookRunId}, serverTaskId: ${run.TaskId}`),
                 `Check the status of all runbook runs to confirm that deprovisioning has completed successfully.`
@@ -67576,7 +67576,7 @@ async function deprovisionEphemeralEnvironmentFromInputs(client, parameters, con
         return deprovisioningRunbookRuns;
     }
     else {
-        client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for project '${parameters.project}' in Octopus Deploy...`);
+        context.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for project '${parameters.project}' in Octopus Deploy...`);
         const project = await (0, api_wrapper_1.GetProjectByName)(client, parameters.project, parameters.space, context);
         const environmentProjectStatus = await (0, api_wrapper_1.getEphemeralEnvironmentProjectStatus)(environment.Id, project.Id, parameters.space, client);
         if (environmentProjectStatus == 'NotConnected') {
@@ -67585,11 +67585,11 @@ async function deprovisionEphemeralEnvironmentFromInputs(client, parameters, con
         }
         const deprovisioningRunbookRun = await (0, api_wrapper_1.deprovisionEphemeralEnvironmentForProject)(environment, project.Id, parameters.space, client);
         if (!deprovisioningRunbookRun) {
-            client.info(`🎉 Deprovisioning completed with no runbook runs required.`);
+            context.info(`🎉 Deprovisioning completed with no runbook runs required.`);
             return [];
         }
         else {
-            client.info([
+            context.info([
                 `🎉 Deprovisioning runbook run created:`,
                 `  runbookRunId: ${deprovisioningRunbookRun.RunbookRunId}, serverTaskId: ${deprovisioningRunbookRun.TaskId}`,
                 `Check the status of the runbook run to confirm that deprovisioning has completed successfully.`

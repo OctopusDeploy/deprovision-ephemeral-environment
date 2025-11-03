@@ -4,6 +4,7 @@ export class ActionContextForTesting implements ActionContext {
     inputs: Record<string, string | boolean> = {};
     outputs: Record<string, unknown> = {};
     failureMessage: string | undefined;
+    infoMessage: string | undefined;
     stepSummary: string = "";
 
     addInput(name: string, value: string): void {
@@ -55,7 +56,7 @@ export class ActionContextForTesting implements ActionContext {
     }
 
     info(message: string): void {
-        console.debug(message);
+        this.infoMessage = message;
     }
 
     warning(message: string): void {
