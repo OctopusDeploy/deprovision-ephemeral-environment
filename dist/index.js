@@ -67465,43 +67465,33 @@ exports.ActionContextImplementation = ActionContextImplementation;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.deprovisionEphemeralEnvironmentFromInputs = deprovisionEphemeralEnvironmentFromInputs;
+exports.getEnvironmentByName = getEnvironmentByName;
+exports.deprovisionEphemeralEnvironmentForAllProjects = deprovisionEphemeralEnvironmentForAllProjects;
+exports.deprovisionEphemeralEnvironmentForProject = deprovisionEphemeralEnvironmentForProject;
 exports.GetProjectByName = GetProjectByName;
+exports.getEphemeralEnvironmentProjectStatus = getEphemeralEnvironmentProjectStatus;
 const api_client_1 = __nccwpck_require__(1212);
-async function deprovisionEphemeralEnvironmentFromInputs(client, parameters, context) {
-    const environmentRepository = new api_client_1.EnvironmentRepository(client, parameters.space);
-    const environment = await environmentRepository.getEnvironmentByName(parameters.name);
-    if (!environment) {
-        client.info(`🚩 Has your environment already been deprovisioned? No environment was found with the name: '${parameters.name}'. Skipping deprovisioning.`);
-        return [];
+async function getEnvironmentByName(environmentName, spaceName, client) {
+    const environmentRepository = new api_client_1.EnvironmentRepository(client, spaceName);
+    return await environmentRepository.getEnvironmentByName(environmentName);
+}
+async function deprovisionEphemeralEnvironmentForAllProjects(environment, spaceName, client) {
+    const environmentRepository = new api_client_1.EnvironmentRepository(client, spaceName);
+    const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironment(environment.Id);
+    if (!deprovisioningResponse.DeprovisioningRuns) {
+        throw new Error(`Error deprovisioning environment: '${environment.Name}'.`);
     }
-    if (!parameters.allProjects && !parameters.project) {
-        throw new Error("To deprovision for a single project a project name must be provided.");
+    // Returns an empty array in the case where no projects have a deprovisioning runbook
+    return deprovisioningResponse.DeprovisioningRuns;
+}
+async function deprovisionEphemeralEnvironmentForProject(environment, projectId, spaceName, client) {
+    const environmentRepository = new api_client_1.EnvironmentRepository(client, spaceName);
+    const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironmentForProject(environment.Id, projectId);
+    if (!deprovisioningResponse) {
+        throw new Error(`Error deprovisioning environment: '${environment.Name}'.`);
     }
-    if (parameters.allProjects) {
-        client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for all projects in Octopus Deploy...`);
-        const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironment(environment.Id);
-        if (!deprovisioningResponse.DeprovisioningRuns) {
-            throw new Error(`Error deprovisioning environment: '${parameters.name}'.`);
-        }
-        client.info(`Deprovisioning started successfully.`);
-        return deprovisioningResponse.DeprovisioningRuns;
-    }
-    else {
-        client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for project '${parameters.project}' in Octopus Deploy...`);
-        const project = await GetProjectByName(client, parameters.project, parameters.space, context);
-        const environmentProjectStatusResponse = await environmentRepository.getEphemeralEnvironmentProjectStatus(environment.Id, project.Id);
-        if (environmentProjectStatusResponse.Status == 'NotConnected') {
-            context.info(`🔗 Environment '${parameters.name}' is not connected to project '${parameters.project}'. Skipping deprovisioning.`);
-            return [];
-        }
-        const deprovisioningResponse = await environmentRepository.deprovisionEphemeralEnvironmentForProject(environment.Id, project.Id);
-        if (!deprovisioningResponse) {
-            throw new Error(`Error deprovisioning environment: '${parameters.name}'.`);
-        }
-        client.info(`Deprovisioning started successfully.`);
-        return deprovisioningResponse.DeprovisioningRun ? [deprovisioningResponse.DeprovisioningRun] : [];
-    }
+    // Returns undefined in the case where the project does not have a deprovisioning runbook
+    return deprovisioningResponse.DeprovisioningRun || undefined;
 }
 async function GetProjectByName(client, projectName, spaceName, context) {
     const projectRepository = new api_client_1.ProjectRepository(client, spaceName);
@@ -67522,6 +67512,11 @@ async function GetProjectByName(client, projectName, spaceName, context) {
         throw new Error(`Project, "${projectName}" not found`);
     }
 }
+async function getEphemeralEnvironmentProjectStatus(environmentId, projectId, spaceName, client) {
+    const environmentRepository = new api_client_1.EnvironmentRepository(client, spaceName);
+    const statusResponse = await environmentRepository.getEphemeralEnvironmentProjectStatus(environmentId, projectId);
+    return statusResponse.Status;
+}
 //# sourceMappingURL=api-wrapper.js.map
 
 /***/ }),
@@ -67533,6 +67528,7 @@ async function GetProjectByName(client, projectName, spaceName, context) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.deprovisionEnvironment = deprovisionEnvironment;
+exports.deprovisionEphemeralEnvironmentFromInputs = deprovisionEphemeralEnvironmentFromInputs;
 const input_parameters_1 = __nccwpck_require__(1920);
 const api_client_1 = __nccwpck_require__(1212);
 const api_wrapper_1 = __nccwpck_require__(6049);
@@ -67546,21 +67542,61 @@ async function deprovisionEnvironment(context) {
         logging: context
     };
     const client = await api_client_1.Client.create(config);
-    const deprovisioningRuns = await (0, api_wrapper_1.deprovisionEphemeralEnvironmentFromInputs)(client, parameters, context);
+    const deprovisioningRuns = await deprovisionEphemeralEnvironmentFromInputs(client, parameters, context);
     context.setOutput('deprovisioning_runbook_runs', JSON.stringify(deprovisioningRuns.map(run => {
         return {
             runbookRunId: run.RunbookRunId,
             serverTaskId: run.TaskId,
         };
     })));
-    if (deprovisioningRuns.length > 0) {
-        client.info([
-            `🎉 Deprovisioning runbook runs:`,
-            ...deprovisioningRuns.map(run => `  runbookRunId: ${run.RunbookRunId}, serverTaskId: ${run.TaskId}`),
-            `Check the status of all runbook runs to confirm that deprovisioning has completed successfully.`
-        ].join('\n'));
-    }
     context.writeStepSummary(`🐙 Octopus Deploy is deprovisioning ephemeral environment **${parameters.name}**.`);
+}
+async function deprovisionEphemeralEnvironmentFromInputs(client, parameters, context) {
+    if (!parameters.allProjects && !parameters.project) {
+        throw new Error("To deprovision for a single project a project name must be provided.");
+    }
+    const environment = await (0, api_wrapper_1.getEnvironmentByName)(parameters.name, parameters.space, client);
+    if (!environment) {
+        client.info(`🚩 Has your environment already been deprovisioned? No environment was found with the name: '${parameters.name}'. Skipping deprovisioning.`);
+        return [];
+    }
+    if (parameters.allProjects) {
+        client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for all projects in Octopus Deploy...`);
+        const deprovisioningRunbookRuns = await (0, api_wrapper_1.deprovisionEphemeralEnvironmentForAllProjects)(environment, parameters.space, client);
+        if (deprovisioningRunbookRuns.length == 0) {
+            client.info(`🎉 Deprovisioning completed with no runbook runs required.`);
+        }
+        else {
+            client.info([
+                `🎉 Deprovisioning runbook runs created:`,
+                ...deprovisioningRunbookRuns.map(run => `  runbookRunId: ${run.RunbookRunId}, serverTaskId: ${run.TaskId}`),
+                `Check the status of all runbook runs to confirm that deprovisioning has completed successfully.`
+            ].join('\n'));
+        }
+        return deprovisioningRunbookRuns;
+    }
+    else {
+        client.info(`🐙 Deprovisioning ephemeral environment '${parameters.name}' for project '${parameters.project}' in Octopus Deploy...`);
+        const project = await (0, api_wrapper_1.GetProjectByName)(client, parameters.project, parameters.space, context);
+        const environmentProjectStatus = await (0, api_wrapper_1.getEphemeralEnvironmentProjectStatus)(environment.Id, project.Id, parameters.space, client);
+        if (environmentProjectStatus == 'NotConnected') {
+            context.info(`🔗 Environment '${parameters.name}' is not connected to project '${parameters.project}'. Skipping deprovisioning.`);
+            return [];
+        }
+        const deprovisioningRunbookRun = await (0, api_wrapper_1.deprovisionEphemeralEnvironmentForProject)(environment, project.Id, parameters.space, client);
+        if (!deprovisioningRunbookRun) {
+            client.info(`🎉 Deprovisioning completed with no runbook runs required.`);
+            return [];
+        }
+        else {
+            client.info([
+                `🎉 Deprovisioning runbook run created:`,
+                `  runbookRunId: ${deprovisioningRunbookRun.RunbookRunId}, serverTaskId: ${deprovisioningRunbookRun.TaskId}`,
+                `Check the status of the runbook run to confirm that deprovisioning has completed successfully.`
+            ].join('\n'));
+            return [deprovisioningRunbookRun];
+        }
+    }
 }
 //# sourceMappingURL=deprovisionEnvironment.js.map
 
