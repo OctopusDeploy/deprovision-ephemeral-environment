@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/compare/v1.0.0...v1.0.1) (2025-11-18)
+
+
+### Bug Fixes
+
+* Update PR validation to be able to run on updates to the PR ([#29](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/issues/29)) ([714db31](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/commit/714db31b8674bb05279fa4e10b7507f199ad298e))
+
 ## 1.0.0 (2025-11-07)
 
 
