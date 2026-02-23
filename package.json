@@ -1,6 +1,6 @@
 {
   "name": "deprovision-ephemeral-environment",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "GitHub Action to deprovision an ephemeral environment in Octopus Deploy",
   "main": "dist/index.js",
   "scripts": {
