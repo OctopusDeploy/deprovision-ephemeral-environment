@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.1](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/compare/v1.0.0...v1.0.1) (2026-02-23)
+
+
+### Bug Fixes
+
+* Add link to demo workflow ([#33](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/issues/33)) ([9ec3013](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/commit/9ec3013249c568e4108005d08bb10b0b1856216c))
+* Address glob package security alert ([#34](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/issues/34)) ([a2a3a2c](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/commit/a2a3a2c9f31cbd9f1e75dfa1d4d1593842de368b))
+* Update PR validation to be able to run on updates to the PR ([#29](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/issues/29)) ([714db31](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/commit/714db31b8674bb05279fa4e10b7507f199ad298e))
+
 ## 1.0.0 (2025-11-07)
 
 
