@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/compare/v1.0.2...v1.0.3) (2026-04-13)
+
+
+### Bug Fixes
+
+* **deps:** bump axios from 1.13.5 to 1.15.0 ([#95](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/issues/95)) ([ffb52a9](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/commit/ffb52a98095d88d95921041c6df6827b470984fa))
+
 ## [1.0.2](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/compare/v1.0.1...v1.0.2) (2026-03-25)
 
 
