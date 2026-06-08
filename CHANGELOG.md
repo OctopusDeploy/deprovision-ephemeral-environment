@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.4](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/compare/v1.0.3...v1.0.4) (2026-06-08)
+
+
+### Bug Fixes
+
+* patch transitive axios vulnerability via npm audit fix ([#100](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/issues/100)) ([171c379](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/commit/171c3794c56ddcfcf50ab6f4c79282685af7d89f))
+* update axios to v1.17.0 ([#104](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/issues/104)) ([775b395](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/commit/775b39503a6f2588bdaad1c1344f77ac4d88da0d))
+
 ## [1.0.3](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/compare/v1.0.2...v1.0.3) (2026-04-13)
 
 
