@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "@actions/core": "3.0.0",
-    "@octopusdeploy/api-client": "3.10.2"
+    "@octopusdeploy/api-client": "3.10.2",
+    "axios": "^1.17.0"
   }
 }
