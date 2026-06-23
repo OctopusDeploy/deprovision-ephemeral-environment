@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  schedule:
+    - cron: "0 5 * * *"
+      timezone: "Australia/Brisbane"
   workflow_dispatch: 
     
 jobs:
