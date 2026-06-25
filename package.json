@@ -34,7 +34,7 @@
     "typescript": "5.9.3"
   },
   "dependencies": {
-    "@actions/core": "3.0.0",
+    "@actions/core": "3.0.1",
     "@octopusdeploy/api-client": "3.10.2",
     "axios": "^1.17.0"
   }
