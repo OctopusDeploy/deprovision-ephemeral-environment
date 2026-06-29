@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.5](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/compare/v1.0.4...v1.0.5) (2026-06-29)
+
+
+### Bug Fixes
+
+* **deps:** bump undici from 6.24.1 to 6.27.0 ([#112](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/issues/112)) ([8e4ce91](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/commit/8e4ce91182aaef8c41763545b679878afca63780))
+
 ## [1.0.4](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/compare/v1.0.3...v1.0.4) (2026-06-08)
 
 
