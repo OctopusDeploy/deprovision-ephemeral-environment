@@ -20,7 +20,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/jest": "29.5.14",
-    "@types/node": "24.12.2",
+    "@types/node": "24.13.2",
     "@typescript-eslint/eslint-plugin": "8.59.2",
     "@typescript-eslint/parser": "8.59.2",
     "esbuild": "0.28.0",
