@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.5](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/compare/v1.0.4...v1.0.5) (2026-07-22)
+
+
+### Bug Fixes
+
+* **deps:** bump @octopusdeploy/api-client to 3.11.5 ([#115](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/issues/115)) ([d9d36f8](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/commit/d9d36f8191c8e8b7acf5ac1ac81efcaaba0acb8a))
+* **deps:** bump @octopusdeploy/api-client to 3.11.6 ([#117](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/issues/117)) ([73ab2ab](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/commit/73ab2abe50fb8b1b670976568bf46210e64eefc0))
+* **deps:** bump undici from 6.24.1 to 6.27.0 ([#112](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/issues/112)) ([8e4ce91](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/commit/8e4ce91182aaef8c41763545b679878afca63780))
+* **deps:** update js-yaml to resolve DoS advisory ([#118](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/issues/118)) ([1dfabbe](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/commit/1dfabbe8b6202d7a0886d8bddcb8d0cf35b87182))
+
 ## [1.0.4](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/compare/v1.0.3...v1.0.4) (2026-06-08)
 
 
