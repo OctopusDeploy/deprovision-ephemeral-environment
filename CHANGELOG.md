@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.6](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/compare/v1.0.5...v1.0.6) (2026-07-24)
+
+
+### Bug Fixes
+
+* **deps:** bump brace-expansion to resolve DoS advisory ([#119](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/issues/119)) ([3b3c433](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/commit/3b3c433a7b9ceab13ee99042d7ac64bdc4b8706c))
+* **deps:** resolve remaining npm audit advisories ([#121](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/issues/121)) ([afdbdd2](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/commit/afdbdd294e5e36da4bcd5f88cf05c9afd3670e1b))
+
 ## [1.0.5](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/compare/v1.0.4...v1.0.5) (2026-07-22)
 
 
