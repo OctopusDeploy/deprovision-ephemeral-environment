@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.7](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/compare/v1.0.6...v1.0.7) (2026-09-21)
+
+
+### Bug Fixes
+
+* **deps:** resolve npm audit advisories ([#130](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/issues/130)) ([87e44f3](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/commit/87e44f3d7f83c9801cd7cfa3a5c6bf7ddbe949cd))
+
 ## [1.0.6](https://github.com/OctopusDeploy/deprovision-ephemeral-environment/compare/v1.0.5...v1.0.6) (2026-09-09)
 
 
