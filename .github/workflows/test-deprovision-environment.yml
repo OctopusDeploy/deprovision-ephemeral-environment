@@ -32,7 +32,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Login to Octopus Deploy
-        uses: OctopusDeploy/login@v1
+        uses: OctopusDeploy/login@v1.0.3
         with: 
           server: ${{ inputs.server || vars.TEST_INSTANCE_URL }}
           service_account_id: ${{ inputs.service_account_id || vars.TEST_INSTANCE_SERVICE_ACCOUNT_ID }}
