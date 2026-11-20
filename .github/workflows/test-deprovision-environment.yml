@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Test Ephemeral Environment Deprovisioning
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.7.0
 
       - name: Login to Octopus Deploy
         uses: OctopusDeploy/login@v1
